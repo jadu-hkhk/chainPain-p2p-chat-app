@@ -1,5 +1,3 @@
-# chainPain-p2p-chat-app
-
 # P2P Chat Application
 
 A TCP-based peer-to-peer chat system built with Node.js, featuring real-time messaging and automatic peer management. Each node functions as both client and server, enabling direct communication between peers while maintaining network consistency.
