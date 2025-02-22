@@ -1,0 +1,13 @@
+{
+  "name": "chainpain-p2p-chat-app",
+  "version": "1.0.0",
+  "description": "P2P Chat Application",
+  "main": "src/peer.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/peer.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
