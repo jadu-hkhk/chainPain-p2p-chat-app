@@ -25,7 +25,7 @@ class P2PChat {
                 this.handleConnection(socket);
             });
 
-            this.server.listen(this.port, () => {
+            this.server.listen(this.port, "0.0.0.0", () => {
                 console.log(`Server listening on port ${this.port}`);
                 resolve();
             });
@@ -194,7 +194,6 @@ class P2PChat {
             const ip = await this.question('Enter peer\'s IP address: ');
             const port = await this.question('Enter peer\'s port number: ');
             await this.sendMessage(ip, port, 'connect');
-            console.log('Connection request sent!');
         } catch (err) { }
     }
 
@@ -207,6 +206,13 @@ class P2PChat {
 
             if (peer && peer.type === 'connected' && peer.socket && !peer.socket.destroyed) {
                 try {
+                    if (message.toLowerCase() === 'connect') {
+                        console.log('Already connected to peer');
+                        this.showMenu();
+                        resolve();
+                        return;
+                    }
+
                     if (message.toLowerCase() === 'exit') {
                         peer.type = 'disconnected';
                     }
@@ -247,6 +253,7 @@ class P2PChat {
 
                     // * Handle connection feedback message
                     if (message.toLowerCase() === 'connect') {
+                        console.log('Connection request sent!');
                         const timeout = setTimeout(() => {
                             client.destroy();
                             console.error(`Connection request to ${peerAddress} timed out`);
