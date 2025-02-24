@@ -48,10 +48,6 @@ class P2PChat {
             this.handlePeerDisconnection(peerAddress, socket);
         });
 
-        socket.on('end', () => {
-            this.handlePeerDisconnection(peerAddress, socket);
-        });
-
         socket.on('close', () => {
             this.handlePeerDisconnection(peerAddress, socket);
         });
@@ -61,6 +57,7 @@ class P2PChat {
     handlePeerDisconnection(address, socket) {
         const peer = this.peers.get(address);
         if (peer && peer.socket === socket) {
+            peer.type = 'disconnected';
             console.log(`\n\nPeer ${peer.teamName} (${address}) has disconnected`);
             socket.destroy();
         }
@@ -250,6 +247,12 @@ class P2PChat {
 
                     // * Handle connection feedback message
                     if (message.toLowerCase() === 'connect') {
+                        const timeout = setTimeout(() => {
+                            client.destroy();
+                            console.error(`Connection request to ${peerAddress} timed out`);
+                            this.showMenu();
+                        }, 5000);
+
                         client.once('data', (data) => {
                             const feedbackMessage = data.toString().split(' ');
                             if (feedbackMessage[2] === 'connected') {
@@ -259,6 +262,8 @@ class P2PChat {
                                     socket: client
                                 });
                                 console.log(`\nConnection confirmed with ${feedbackMessage[1]} (${peerAddress})`);
+                                clearTimeout(timeout);
+                                this.handleConnection(client);
                                 this.showMenu();
                             }
                         });
@@ -293,7 +298,7 @@ class P2PChat {
                     errorMessage += err.message;
                 }
 
-                console.error(errorMessage);
+                console.error(`\n${errorMessage}`);
                 client.destroy();
                 this.showMenu();
                 reject(err);
@@ -304,9 +309,9 @@ class P2PChat {
     // Query active peers
     queryPeers() {
         if (this.peers.size === 0) {
-            console.log('🔍 No connected peers');
+            console.log('🔍 No active peers');
         } else {
-            console.log('\n===== Connected Peers =====');
+            console.log('\n===== Active Peers =====');
             console.log(`Total peers: ${this.peers.size}`);
             console.log('-------------------------');
             let i = 1;
